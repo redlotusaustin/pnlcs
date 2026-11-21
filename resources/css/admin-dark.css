@@ -1,0 +1,440 @@
+/* ===========================================================
+   PNLCS — Admin area dark mode
+   ===========================================================
+   Loads ONLY on admin pages (second @vite entry, after app.css)
+   and every rule is scoped to html[data-app="admin"], so it can
+   never leak into the client area, which shares the app.css
+   bundle and its own data-theme handling.
+
+   Mechanism (mirrors the client area):
+   - <html data-theme="dark|light"> is set server-side from the
+     pnlcs_admin_theme cookie, with a pre-paint <head> script
+     falling back to prefers-color-scheme when no cookie exists.
+   - The toggle (navbar moon/sun) flips the attribute + cookie.
+
+   Strategy: token flip + component overrides on top of the
+   WHMCS Blend sheet. app.css's back-compat layer uses !important,
+   so the surface rules below do too. --theme-* brand tokens are
+   deliberately NOT overridden: the navy nav, footer and table
+   headers carry over into dark mode by design.
+   =========================================================== */
+
+/* Admin scope for the client-area tokens app.css references
+   (--card/--text/--border/--muted/--primary/--danger). The client
+   layout defines these inline; without this, .pn-btn et al. would
+   fall back per-property and could never flip together. */
+html[data-app="admin"] {
+    --card: #fff;
+    --text: #1e293b;
+    --border: #e2e8f0;
+    --muted: #64748b;
+    --primary: #1a4d80;
+    --primary-dark: #143d66;
+    --danger: #ef4444;
+}
+
+/* ── DARK TOKENS ───────────────────────────────────────────
+   Flips every --pn-* consumer (report headings, muted text,
+   borders — see the pn-vars <style> in the admin layout) and
+   the tokens above in one go. */
+html[data-app="admin"][data-theme="dark"] {
+    --card: #1e293b;
+    --text: #d5deeb;
+    --border: #2e3d57;
+    --muted: #8fa1b8;
+    --primary: #337ab7;
+    --primary-dark: #2a64a0;
+    --danger: #e05252;
+
+    --pn-heading: #eef3fb;
+    --pn-text: #d5deeb;
+    --pn-muted: #8fa1b8;
+    --pn-border: #2e3d57;
+    --pn-link: #6f9fd8;
+    --pn-badge-bg: #24344d;
+    --pn-body-bg: #0a101e;
+}
+
+/* ── BASE ── */
+html[data-app="admin"][data-theme="dark"] body {
+    background: #0a101e !important; /* !important: the auth pages set bg inline */
+    color: #d5deeb;
+}
+html[data-app="admin"][data-theme="dark"] a { color: #6f9fd8; }
+html[data-app="admin"][data-theme="dark"] a:hover { color: #8ab4e8; }
+html[data-app="admin"][data-theme="dark"] ::-webkit-scrollbar-thumb { background: #3a4a63; }
+
+/* ── CONTENT AREA & HEADINGS ── */
+html[data-app="admin"][data-theme="dark"] .contentarea {
+    background-color: #111b31;
+    border-left-color: #2e3d57;
+}
+html[data-app="admin"][data-theme="dark"] .contentarea h1 {
+    color: #eef3fb;
+    border-bottom-color: #2e3d57;
+}
+html[data-app="admin"][data-theme="dark"] .page-header { border-bottom-color: #2e3d57 !important; }
+html[data-app="admin"][data-theme="dark"] .page-header h1 { color: #eef3fb !important; }
+
+/* ── SIDEBAR (transparent; sits on body bg) ── */
+html[data-app="admin"][data-theme="dark"] .sidebar .sidebar-header {
+    background-color: rgba(255,255,255,0.06);
+    color: #c3cfdf;
+}
+html[data-app="admin"][data-theme="dark"] .sidebar .sidebar-header i { color: #6b7f9a; }
+html[data-app="admin"][data-theme="dark"] .sidebar ul.menu li a { color: #a9b7cc; }
+html[data-app="admin"][data-theme="dark"] .sidebar ul.menu li a:hover { color: #8ab4e8; background: #1b2740; }
+html[data-app="admin"][data-theme="dark"] .sidebar ul.menu li a.active { color: #cfe0f5; background: #24344d; }
+html[data-app="admin"][data-theme="dark"] .sidebar .sub-header { color: #8fa1b8; }
+html[data-app="admin"][data-theme="dark"] .sidebar .staff-row { color: #a9b7cc; }
+html[data-app="admin"][data-theme="dark"] .sidebar .advanced-search input,
+html[data-app="admin"][data-theme="dark"] .sidebar .advanced-search select {
+    background: #142036;
+    border-color: #2e3d57;
+    color: #d5deeb;
+}
+
+/* ── TABLES (base + .data-table compat layer, which uses !important) ── */
+html[data-app="admin"][data-theme="dark"] .table-themed tr td,
+html[data-app="admin"][data-theme="dark"] .data-table tbody td {
+    background: #1e293b !important;
+    border-bottom-color: #2e3d57 !important;
+    color: #d5deeb;
+}
+html[data-app="admin"][data-theme="dark"] .table-themed tr:nth-child(even) td,
+html[data-app="admin"][data-theme="dark"] .data-table tbody tr:nth-child(even) td {
+    background: #182338 !important;
+}
+html[data-app="admin"][data-theme="dark"] .table-themed tr:hover td,
+html[data-app="admin"][data-theme="dark"] .table-themed tr:nth-child(even):hover td,
+html[data-app="admin"][data-theme="dark"] .data-table tbody tr:hover td,
+html[data-app="admin"][data-theme="dark"] .data-table tbody tr:nth-child(even):hover td {
+    background: #26334d !important;
+}
+html[data-app="admin"][data-theme="dark"] .table th {
+    background: #182338;
+    border-bottom-color: #2e3d57;
+    color: #c3cfdf;
+}
+html[data-app="admin"][data-theme="dark"] .table td { border-bottom-color: #2e3d57; }
+html[data-app="admin"][data-theme="dark"] .table-striped tbody tr:nth-child(even) td { background: #182338; }
+html[data-app="admin"][data-theme="dark"] .table-hover tbody tr:hover td { background: #26334d; }
+
+/* ── CARDS / PANELS / STATS / WELL ── */
+html[data-app="admin"][data-theme="dark"] .card {
+    background: #1e293b !important;
+    border-color: #2e3d57 !important;
+}
+html[data-app="admin"][data-theme="dark"] .card-header {
+    background: #182338 !important;
+    border-bottom-color: #2e3d57 !important;
+}
+html[data-app="admin"][data-theme="dark"] .card-title { color: #eef3fb; }
+html[data-app="admin"][data-theme="dark"] .card-footer {
+    background: #182338;
+    border-top-color: #2e3d57;
+}
+html[data-app="admin"][data-theme="dark"] .stat-card {
+    background: #1e293b !important;
+    border-color: #2e3d57 !important;
+}
+html[data-app="admin"][data-theme="dark"] .stat-card .stat-value,
+html[data-app="admin"][data-theme="dark"] .stat-card .stat-label { color: inherit; }
+html[data-app="admin"][data-theme="dark"] .stat-card .stat-label { color: #8fa1b8 !important; }
+html[data-app="admin"][data-theme="dark"] .panel { background: #1e293b; border-color: #2e3d57; }
+html[data-app="admin"][data-theme="dark"] .panel-heading {
+    background: #182338;
+    border-bottom-color: #2e3d57;
+}
+html[data-app="admin"][data-theme="dark"] .well {
+    background-color: #182338;
+    border-color: #2e3d57;
+}
+
+/* ── BUTTONS ── */
+html[data-app="admin"][data-theme="dark"] .btn-default,
+html[data-app="admin"][data-theme="dark"] .btn-secondary {
+    background-color: #1e293b !important;
+    border-color: #3a4a63 !important;
+    color: #d5deeb !important;
+}
+html[data-app="admin"][data-theme="dark"] .btn-default:hover,
+html[data-app="admin"][data-theme="dark"] .btn-secondary:hover {
+    background-color: #26334d !important;
+    color: #eef3fb !important;
+}
+html[data-app="admin"][data-theme="dark"] .btn-outline-primary {
+    color: #6f9fd8;
+    border-color: #6f9fd8;
+}
+html[data-app="admin"][data-theme="dark"] .btn-outline-primary:hover {
+    background: #6f9fd8;
+    color: #0a101e;
+}
+
+/* ── FORMS ── */
+html[data-app="admin"][data-theme="dark"] .form-control {
+    background-color: #142036 !important;
+    border-color: #2e3d57 !important;
+    color: #d5deeb !important;
+}
+html[data-app="admin"][data-theme="dark"] .form-control:focus {
+    border-color: #66afe9 !important;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6) !important;
+}
+html[data-app="admin"][data-theme="dark"] .form-label { color: #a9b7cb !important; }
+html[data-app="admin"][data-theme="dark"] .input-group-addon {
+    background-color: #1e293b;
+    border-color: #2e3d57;
+    color: #a9b7cb;
+}
+html[data-app="admin"][data-theme="dark"] .form-select,
+html[data-app="admin"][data-theme="dark"] .form-input {
+    background: #142036;
+    border-color: #2e3d57;
+    color: #d5deeb;
+}
+html[data-app="admin"][data-theme="dark"] .help-block { color: #8fa1b8; }
+
+/* ── BADGES (compat layer's pastel-on-light pairs → dark tints) ── */
+html[data-app="admin"][data-theme="dark"] .badge-active, html[data-app="admin"][data-theme="dark"] .badge-paid,
+html[data-app="admin"][data-theme="dark"] .badge-completed, html[data-app="admin"][data-theme="dark"] .badge-answered {
+    background: #16301e !important;
+    color: #86dba0 !important;
+}
+html[data-app="admin"][data-theme="dark"] .badge-pending, html[data-app="admin"][data-theme="dark"] .badge-customer-reply {
+    background: #33290f !important;
+    color: #ecc56b !important;
+}
+html[data-app="admin"][data-theme="dark"] .badge-suspended, html[data-app="admin"][data-theme="dark"] .badge-overdue,
+html[data-app="admin"][data-theme="dark"] .badge-open, html[data-app="admin"][data-theme="dark"] .badge-draft,
+html[data-app="admin"][data-theme="dark"] .badge-refunded {
+    background: #14283c !important;
+    color: #7cc4ec !important;
+}
+html[data-app="admin"][data-theme="dark"] .badge-terminated, html[data-app="admin"][data-theme="dark"] .badge-unpaid,
+html[data-app="admin"][data-theme="dark"] .badge-closed {
+    background: #331b1b !important;
+    color: #f3a6a0 !important;
+}
+html[data-app="admin"][data-theme="dark"] .badge-cancelled, html[data-app="admin"][data-theme="dark"] .badge-inactive {
+    background: #26334d !important;
+    color: #a9b7cb !important;
+}
+
+/* ── ALERTS / FLASH ── */
+html[data-app="admin"][data-theme="dark"] .alert-success, html[data-app="admin"][data-theme="dark"] .flash-ok {
+    color: #7fd694;
+    background-color: #12291a;
+    border-color: #1d4228;
+}
+html[data-app="admin"][data-theme="dark"] .alert-danger, html[data-app="admin"][data-theme="dark"] .alert-error,
+html[data-app="admin"][data-theme="dark"] .flash-err {
+    color: #f3a6a0;
+    background-color: #331b1b;
+    border-color: #5a2525;
+}
+html[data-app="admin"][data-theme="dark"] .alert-warning {
+    color: #ecc56b;
+    background-color: #33290f;
+    border-color: #5a4715;
+}
+html[data-app="admin"][data-theme="dark"] .alert-info {
+    color: #7cc4ec;
+    background-color: #14283c;
+    border-color: #1e3d5c;
+}
+
+/* ── MODAL ── */
+html[data-app="admin"][data-theme="dark"] .modal-content {
+    background: #1e293b !important;
+    color: #d5deeb;
+}
+html[data-app="admin"][data-theme="dark"] .modal-header { border-bottom-color: #2e3d57 !important; }
+html[data-app="admin"][data-theme="dark"] .modal-footer { border-top-color: #2e3d57 !important; }
+
+/* ── PAGINATION ── */
+html[data-app="admin"][data-theme="dark"] .pagination > li > a,
+html[data-app="admin"][data-theme="dark"] .pagination > li > span {
+    background-color: #1e293b;
+    border-color: #3a4a63;
+    color: #6f9fd8;
+}
+html[data-app="admin"][data-theme="dark"] .pagination > li > a:hover {
+    background-color: #26334d;
+    border-color: #3a4a63;
+    color: #8ab4e8;
+}
+
+/* ── TABS ── */
+html[data-app="admin"][data-theme="dark"] .nav-tabs { border-bottom-color: #2e3d57; }
+html[data-app="admin"][data-theme="dark"] .nav-tabs li a { color: #6f9fd8; }
+html[data-app="admin"][data-theme="dark"] .nav-tabs li a:hover {
+    background: #1e293b;
+    border-color: #2e3d57 #2e3d57 #2e3d57;
+}
+html[data-app="admin"][data-theme="dark"] .nav-tabs li.active a {
+    color: #eef3fb;
+    background: #111b31; /* must match .contentarea so the tab melts into the page */
+    border-color: #2e3d57;
+    border-bottom-color: #111b31;
+}
+
+/* ── DROPDOWNS (nav bar + standalone) ── */
+html[data-app="admin"][data-theme="dark"] .navigation ul li.has-dropdown > ul.dropdown-menu,
+html[data-app="admin"][data-theme="dark"] .dropdown-menu {
+    background: #1e293b;
+    border-color: #3a4a63;
+}
+html[data-app="admin"][data-theme="dark"] .navigation ul li.has-dropdown > ul.dropdown-menu li a,
+html[data-app="admin"][data-theme="dark"] .dropdown-menu li a { color: #d5deeb; }
+html[data-app="admin"][data-theme="dark"] .navigation ul li.has-dropdown > ul.dropdown-menu li a:hover,
+html[data-app="admin"][data-theme="dark"] .dropdown-menu li a:hover {
+    background: #26334d;
+    color: #fff;
+}
+html[data-app="admin"][data-theme="dark"] .navigation ul li.has-dropdown > ul.dropdown-menu .divider,
+html[data-app="admin"][data-theme="dark"] .dropdown-menu .divider { background-color: #2e3d57; }
+
+/* ── TEXT UTILITIES ── */
+html[data-app="admin"][data-theme="dark"] .text-muted { color: #8fa1b8; }
+html[data-app="admin"][data-theme="dark"] .text-success { color: #7fd694; }
+html[data-app="admin"][data-theme="dark"] .text-danger { color: #f3a6a0; }
+html[data-app="admin"][data-theme="dark"] .text-warning { color: #ecc56b; }
+html[data-app="admin"][data-theme="dark"] .text-info { color: #7cc4ec; }
+html[data-app="admin"][data-theme="dark"] .text-primary { color: #6f9fd8; }
+
+/* ── AUTH PAGES (login / two-factor) ──
+   These pages are standalone (own <html>, inline styles). The
+   blades carry admin-auth-* class hooks added for this sheet. */
+html[data-app="admin"][data-theme="dark"] .admin-auth-card {
+    background: #1e293b;
+    border-color: #2e3d57;
+    color: #d5deeb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+html[data-app="admin"][data-theme="dark"] .admin-auth-sub { color: #8fa1b8; }
+html[data-app="admin"][data-theme="dark"] .admin-auth-hint { color: #8fa1b8; }
+html[data-app="admin"][data-theme="dark"] .admin-auth-error {
+    background: #331b1b;
+    border-color: #5a2525;
+    color: #f3a6a0;
+}
+html[data-app="admin"][data-theme="dark"] .admin-auth-success {
+    background: #12291a;
+    border-color: #1d4228;
+    color: #7fd694;
+}
+html[data-app="admin"][data-theme="dark"] .admin-auth-code {
+    background: #142036;
+    border-color: #2e3d57;
+    color: #d5deeb;
+}
+html[data-app="admin"][data-theme="dark"] .admin-auth-ghost {
+    background: none;
+    color: #8fa1b8;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   INLINE-STYLE SWEEP
+   ~1,200 admin views carry hardcoded light colors in style=""
+   attributes. Stylesheet !important beats a non-important inline
+   style, so this mechanical layer re-maps the exact patterns that
+   exist in the blades (both spacing spellings). It is safe to
+   delete entries as views get tokenized — unmatched selectors
+   cost nothing.
+   ═════════════════════════════════════════════════════════════ */
+
+/* White / near-white inline surfaces → surfaces */
+html[data-app="admin"][data-theme="dark"] [style*="background:#fff"],
+html[data-app="admin"][data-theme="dark"] [style*="background: #fff"] { background-color: #1e293b !important; }
+html[data-app="admin"][data-theme="dark"] [style*="background:#f5f5f5"],
+html[data-app="admin"][data-theme="dark"] [style*="background: #f5f5f5"],
+html[data-app="admin"][data-theme="dark"] [style*="background:#f9f9f9"],
+html[data-app="admin"][data-theme="dark"] [style*="background: #f9f9f9"],
+html[data-app="admin"][data-theme="dark"] [style*="background:#fafafa"],
+html[data-app="admin"][data-theme="dark"] [style*="background: #fafafa"],
+html[data-app="admin"][data-theme="dark"] [style*="background:#f8fafc"],
+html[data-app="admin"][data-theme="dark"] [style*="background: #f8fafc"] { background-color: #182338 !important; }
+html[data-app="admin"][data-theme="dark"] [style*="background:#e9e9e9"],
+html[data-app="admin"][data-theme="dark"] [style*="background: #e9e9e9"] { background-color: #26334d !important; }
+html[data-app="admin"][data-theme="dark"] [style*="background:#e8eef7"],
+html[data-app="admin"][data-theme="dark"] [style*="background: #e8eef7"] { background-color: #14283c !important; }
+html[data-app="admin"][data-theme="dark"] [style*="background:#f2dede"],
+html[data-app="admin"][data-theme="dark"] [style*="background: #f2dede"],
+html[data-app="admin"][data-theme="dark"] [style*="background:#fdecea"],
+html[data-app="admin"][data-theme="dark"] [style*="background: #fdecea"] { background-color: #331b1b !important; }
+html[data-app="admin"][data-theme="dark"] [style*="background:#fcf8e3"],
+html[data-app="admin"][data-theme="dark"] [style*="background: #fcf8e3"] { background-color: #33290f !important; }
+
+/* Dark inline text → light */
+html[data-app="admin"][data-theme="dark"] [style*="color:#333"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #333"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#555"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #555"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#1e293b"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #1e293b"] { color: #d5deeb !important; }
+html[data-app="admin"][data-theme="dark"] [style*="color:#666"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #666"] { color: #c3cfdf !important; }
+html[data-app="admin"][data-theme="dark"] [style*="color:#777"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #777"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#888"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #888"] { color: #a9b7cb !important; }
+html[data-app="admin"][data-theme="dark"] [style*="color:#999"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #999"] { color: #8fa1b8 !important; }
+
+/* Brand/status inline accents → dark-mode-readable equivalents */
+html[data-app="admin"][data-theme="dark"] [style*="color:#337ab7"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #337ab7"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#1a4d80"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #1a4d80"] { color: #6f9fd8 !important; }
+html[data-app="admin"][data-theme="dark"] [style*="color:#d9534f"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #d9534f"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#a94442"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #a94442"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#c43c35"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #c43c35"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#a12a1f"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #a12a1f"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#8a1f17"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #8a1f17"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#c00"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #c00"] { color: #f3a6a0 !important; }
+html[data-app="admin"][data-theme="dark"] [style*="color:#8a6d3b"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #8a6d3b"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#b45309"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #b45309"] { color: #ecc56b !important; }
+html[data-app="admin"][data-theme="dark"] [style*="color:#3c763d"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #3c763d"],
+html[data-app="admin"][data-theme="dark"] [style*="color:#5cb85c"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #5cb85c"] { color: #86dba0 !important; }
+html[data-app="admin"][data-theme="dark"] [style*="color:#b91c1c"],
+html[data-app="admin"][data-theme="dark"] [style*="color: #b91c1c"] { color: #f3a6a0 !important; }
+
+/* Light inline borders → dark hairlines (colors only; widths/styles kept) */
+html[data-app="admin"][data-theme="dark"] [style*="border:1px solid #ddd"],
+html[data-app="admin"][data-theme="dark"] [style*="border: 1px solid #ddd"],
+html[data-app="admin"][data-theme="dark"] [style*="border:1px solid #ccc"],
+html[data-app="admin"][data-theme="dark"] [style*="border: 1px solid #ccc"],
+html[data-app="admin"][data-theme="dark"] [style*="border:1px solid #eee"],
+html[data-app="admin"][data-theme="dark"] [style*="border: 1px solid #eee"],
+html[data-app="admin"][data-theme="dark"] [style*="border:1px solid #e5e5e5"],
+html[data-app="admin"][data-theme="dark"] [style*="border: 1px solid #e5e5e5"],
+html[data-app="admin"][data-theme="dark"] [style*="border:1px solid #e5e7eb"],
+html[data-app="admin"][data-theme="dark"] [style*="border: 1px solid #e5e7eb"] { border-color: #2e3d57 !important; }
+html[data-app="admin"][data-theme="dark"] [style*="border-top:1px solid #ddd"],
+html[data-app="admin"][data-theme="dark"] [style*="border-top: 1px solid #ddd"],
+html[data-app="admin"][data-theme="dark"] [style*="border-top:1px solid #eee"],
+html[data-app="admin"][data-theme="dark"] [style*="border-top: 1px solid #eee"],
+html[data-app="admin"][data-theme="dark"] [style*="border-top:2px solid #ddd"],
+html[data-app="admin"][data-theme="dark"] [style*="border-top:1px solid #e5e5e5"],
+html[data-app="admin"][data-theme="dark"] [style*="border-top:1px solid #e5e7eb"],
+html[data-app="admin"][data-theme="dark"] [style*="border-top:1px solid #ebebeb"] { border-top-color: #2e3d57 !important; }
+html[data-app="admin"][data-theme="dark"] [style*="border-bottom:1px solid #ddd"],
+html[data-app="admin"][data-theme="dark"] [style*="border-bottom: 1px solid #ddd"],
+html[data-app="admin"][data-theme="dark"] [style*="border-bottom:2px solid #ddd"],
+html[data-app="admin"][data-theme="dark"] [style*="border-bottom:1px solid #eee"],
+html[data-app="admin"][data-theme="dark"] [style*="border-bottom:1px solid #e5e5e5"],
+html[data-app="admin"][data-theme="dark"] [style*="border-bottom:1px solid #e5e7eb"],
+html[data-app="admin"][data-theme="dark"] [style*="border-bottom:1px solid #ebebeb"] { border-bottom-color: #2e3d57 !important; }
+

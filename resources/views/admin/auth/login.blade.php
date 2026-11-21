@@ -1,33 +1,34 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace("_", "-", app()->getLocale()) }}" dir="{{ $textDirection ?? 'ltr' }}">
+<html lang="{{ str_replace("_", "-", app()->getLocale()) }}" dir="{{ $textDirection ?? 'ltr' }}" data-app="admin" data-theme="{{ request()->cookie('pnlcs_admin_theme') === 'dark' ? 'dark' : 'light' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('admin.auth.admin_login_title') }} - {{ company_name() }}</title>
-    @vite(["resources/css/app.css"])
+    <script>(function(){try{var m=document.cookie.match(/(?:^|;\s*)pnlcs_admin_theme=(dark|light)\b/);document.documentElement.setAttribute('data-theme',m?m[1]:((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'));}catch(e){}})();</script>
+    @vite(["resources/css/app.css", "resources/css/admin-dark.css"])
     @include('admin.auth.partials.head')
 </head>
-<body style="margin:0;padding:0;background:#f6f6f6;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+<body style="margin:0;padding:0;background:var(--pn-body-bg,#f6f6f6);font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
 
 <div style="width:100%;max-width:400px;padding:20px;">
     <!-- Logo / Header -->
     <div style="text-align:center;margin-bottom:24px;">
         @include('admin.auth.partials.mark')
         <h1 style="margin:0;font-size:22px;font-weight:700;color:var(--theme-primary,#1a4d80);">{{ company_name() }}</h1>
-        <p style="margin:4px 0 0;font-size:13px;color:#666;">{{ __('admin.auth.administration_area') }}</p>
+        <p class="admin-auth-sub" style="margin:4px 0 0;font-size:13px;color:#666;">{{ __('admin.auth.administration_area') }}</p>
     </div>
 
     <!-- Card -->
-    <div style="background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:28px 32px;">
+    <div class="admin-auth-card" style="background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:28px 32px;color:#333;">
 
         @if ($errors->any())
-        <div style="background:#f2dede;border:1px solid #ebccd1;color:#a94442;padding:10px 14px;border-radius:4px;font-size:13px;margin-bottom:18px;">
+        <div class="admin-auth-error" style="background:#f2dede;border:1px solid #ebccd1;color:#a94442;padding:10px 14px;border-radius:4px;font-size:13px;margin-bottom:18px;">
             {{ $errors->first() }}
         </div>
         @endif
 
         @if (session("status"))
-        <div style="background:#dff0d8;border:1px solid #d6e9c6;color:#3c763d;padding:10px 14px;border-radius:4px;font-size:13px;margin-bottom:18px;">
+        <div class="admin-auth-success" style="background:#dff0d8;border:1px solid #d6e9c6;color:#3c763d;padding:10px 14px;border-radius:4px;font-size:13px;margin-bottom:18px;">
             {{ session("status") }}
         </div>
         @endif
@@ -54,7 +55,7 @@
             <div style="margin-bottom:18px;display:flex;align-items:center;gap:8px;">
                 <input type="checkbox" name="remember" id="remember"
                     style="width:14px;height:14px;accent-color:#337ab7;cursor:pointer;">
-                <label for="remember" style="font-size:13px;color:#555;cursor:pointer;margin:0;">{{ __('admin.auth.remember_me') }}</label>
+                <label for="remember" style="font-size:13px;color:var(--pn-muted,#555);cursor:pointer;margin:0;">{{ __('admin.auth.remember_me') }}</label>
             </div>
 
             <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:8px 14px;font-size:14px;">
@@ -64,7 +65,7 @@
     </div>
 
     <!-- Footer -->
-    <p style="text-align:center;font-size:12px;color:#999;margin-top:20px;">
+    <p class="admin-auth-sub" style="text-align:center;font-size:12px;color:#999;margin-top:20px;">
         &copy; {{ date("Y") }} {{ company_name() }}. {{ __('admin.auth.all_rights_reserved') }}
     </p>
 </div>

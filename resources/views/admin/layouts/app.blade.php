@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace("_", "-", app()->getLocale()) }}" dir="{{ $textDirection ?? 'ltr' }}">
+<html lang="{{ str_replace("_", "-", app()->getLocale()) }}" dir="{{ $textDirection ?? 'ltr' }}" data-app="admin" data-theme="{{ request()->cookie('pnlcs_admin_theme') === 'dark' ? 'dark' : 'light' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield("title", "Admin") - {{ company_name() }}</title>
-    @vite(["resources/css/app.css"])
+    {{-- Apply the theme before the stylesheet paints: cookie wins, else the
+        system preference. SSR above already covers the cookie for no-JS. --}}
+    <script>(function(){try{var m=document.cookie.match(/(?:^|;\s*)pnlcs_admin_theme=(dark|light)\b/);document.documentElement.setAttribute('data-theme',m?m[1]:((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'));}catch(e){}})();</script>
+    @vite(["resources/css/app.css", "resources/css/admin-dark.css"])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
     @if(!empty($customFavicon))
     <link rel="icon" href="{{ $customFavicon }}" type="image/png">
@@ -227,6 +230,13 @@
                 </a>
             </li>
             @endif
+
+            {{-- Dark mode toggle (cookie: pnlcs_admin_theme) --}}
+            <li style="float:left; width:auto;">
+                <a href="#" onclick="event.preventDefault(); toggleAdminDarkMode();" title="{{ __('admin.appearance.dark_mode') }}" aria-label="{{ __('admin.appearance.dark_mode') }}" style="cursor:pointer;">
+                    <i class="fas fa-moon" id="adminDarkIconMoon"></i><i class="fas fa-sun" id="adminDarkIconSun" style="display:none;"></i>
+                </a>
+            </li>
 
             {{-- Setup / Config --}}
             <li class="has-dropdown" style="float:left; width:auto; position:relative;">
@@ -640,6 +650,21 @@ function toggleSidebar() {
     sidebar.classList.toggle("collapsed");
     localStorage.setItem("pnlcs_sidebar_collapsed", sidebar.classList.contains("collapsed") ? "1" : "0");
 }
+function toggleAdminDarkMode() {
+    var d = document.documentElement.getAttribute("data-theme") === "dark";
+    var n = d ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", n);
+    document.cookie = "pnlcs_admin_theme=" + n + ";path=/;max-age=31536000;SameSite=Lax";
+    setAdminDarkIcons(n === "dark");
+}
+function setAdminDarkIcons(dark) {
+    var moon = document.getElementById("adminDarkIconMoon"), sun = document.getElementById("adminDarkIconSun");
+    if (moon) moon.style.display = dark ? "none" : "";
+    if (sun) sun.style.display = dark ? "" : "none";
+}
+// Sync the toggle icons with the theme actually applied (cookie or system
+// preference — the head script may have chosen dark without a cookie).
+setAdminDarkIcons(document.documentElement.getAttribute("data-theme") === "dark");
 </script>
 @stack('scripts')
 {!! hook_output('AdminAreaFooterOutput', ['admin' => auth('admin')->user()]) !!}
